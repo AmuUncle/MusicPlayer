@@ -1,0 +1,301 @@
+QPalette{background:#D4D4D4;}*{outline:0px;}
+
+QMenu 
+{
+	background-color : #F5F5F5; 
+	padding:0px;
+	border-radius:5px;
+}
+
+QMenu::item 
+{
+	font-size:10pt;
+	color: rgb(0,0,0);
+	background-color:#F5F5F5;
+	padding: 8px 25px 6px 15px;
+	margin: 0px;
+}
+
+QMenu::item:selected 
+{
+	background-color : rgb(236,236,237);
+}
+
+QMenu::right-arrow
+{
+	image:url(:/qss/res/right_arrow.png);
+}
+
+QMenu::icon:checked 
+{
+	background: rgb(253,253,254);
+	position: absolute;
+	top: 1px;
+	right: 1px;
+	bottom: 1px;
+	left: 1px;
+}
+
+QMenu::icon:checked:selected 
+{
+	background-color : rgb(236,236,237);
+}
+
+QMenu::separator 
+{
+	height: 1px;
+	background: #E6E8EB;
+}
+
+QLineEdit 
+{
+	border-style:none;
+	border-radius: 1px;
+	padding: 3 3px;
+	background: #D4D6D9;
+}
+
+QScrollBar:horizontal
+{
+	background:none;
+	padding:0px;
+	border-radius:6px;
+	max-height:12px;
+}
+
+QScrollBar::handle:horizontal
+{
+background:#181818;
+min-width:50px;
+border-radius:6px;
+}
+
+QScrollBar::handle:horizontal:hover
+{
+background:#2A2C32;
+}
+
+QScrollBar::handle:horizontal:pressed
+{
+background:#2A2C32;
+}
+
+QScrollBar::add-page:horizontal{
+background:none;
+}
+
+QScrollBar::sub-page:horizontal
+{
+background:none;
+}
+
+QScrollBar::add-line:horizontal
+{
+background:none;
+}
+
+QScrollBar::sub-line:horizontal
+{
+background:none;
+}
+
+QScrollBar:vertical
+{
+	background:#E6E8EB;
+	padding:0px;
+	border-radius:4px;
+	max-width:8px;
+}
+
+QScrollBar::handle:vertical
+{
+	background:#92969B;
+	min-height:50px;
+	border-radius:4px;
+}
+
+QScrollBar::handle:vertical:hover
+{
+background:#2A2C32;
+}
+
+QScrollBar::handle:vertical:pressed
+{
+background:#2A2C32;
+}
+
+QScrollBar::add-page:vertical
+{
+background:none;
+}
+
+QScrollBar::sub-page:vertical
+{
+background:none;
+}
+
+QScrollBar::add-line:vertical{
+background:none;
+}
+
+QScrollBar::sub-line:vertical{
+background:none;
+}
+
+QListView
+{
+    background:#E6E8EB;
+    border-style:none;
+}
+
+QListView::item:selected
+{
+    color:#000000;
+    background:#C3C5C7;
+}
+
+QListView::item:hover
+{
+    background:#D7D9DB;
+}
+
+QListView::item
+{
+    border-bottom: 1px solid #DADCDF;
+}
+
+/*************************************************
+*  iconfont 按钮
+*************************************************/
+
+.IconfontBtn
+{
+    background:none;
+    border-style:none;
+    color:#B9CCE4;
+}
+
+.IconfontBtn:hover
+{
+    color:#DE4258;
+}
+
+.IconfontBtn:pressed
+{
+    color:#DE4258;
+}
+
+.IconfontBtn:checked
+{
+    color:#DE4258;
+}
+
+.IconfontBtn:disabled
+{
+    color:#D7D7D7;
+}
+
+.IconfontBtn[white_bk="true"]
+{
+    background:none;
+    border-style:none;
+    color:#6E7882;
+}
+
+.IconfontBtn[white_bk="true"]:hover
+{
+    color:#6E78FF;
+}
+
+.IconfontBtn[white_bk="true"]:pressed
+{
+    color:#6E78FF;
+}
+
+.IconfontBtn[white_bk="true"]:checked
+{
+    color:#6E78FF;
+}
+
+.IconfontBtn[white_bk="true"]:disabled
+{
+    color:#D7D7D7;
+}
+
+QWidget[form="mainwnd"]
+{
+	background:#FFFFFF;
+	border-radius:6px;
+}
+
+/*************************************************
+* 自定义对话框basedlg
+*************************************************/
+
+QWidget[form="title"]
+{
+    color:#000000;
+    background:#FFFFFF;
+}
+
+QWidget[form="title"] QLabel
+{
+    color:#000000;
+}
+
+QWidget[form="title"] QPushButton[toolbar="true"],QPushButton[toolbar_close="true"]
+{
+	color:#6E7882;
+    background:none;
+}
+
+QWidget[form="title"] QPushButton[toolbar="true"]:hover
+{
+	color:#6E7882;
+    background: #E5E5E5;
+}
+
+QWidget[form="title"] QPushButton[toolbar="true"]:pressed
+{
+	color:#6E7882;
+    background: #D2D2D2;
+}
+
+QWidget[form="title"] QPushButton[toolbar_close="true"]:hover
+{
+	color:#FFFFFF;
+    background: #F44336;
+}
+
+QWidget[form="title"] QPushButton[toolbar_close="true"]:pressed
+{
+	color:#FFFFFF;
+    background:#DC3C30;
+}
+
+QWidget[form="basedlg"]
+{
+    background:#FFFFFF;
+}
+
+QPushButton[m_btnPre="true"],QPushButton[m_btnNext="true"]
+{
+    min-width: 30px;
+    max-width: 30px;
+    max-height: 30px;
+    min-height: 30px;
+    border-radius: 15px;
+    color: #909090;
+    background: #FFFFFF;
+}
+
+QPushButton[m_btnStart="true"]
+{
+    min-width: 50px;
+    max-width: 50px;
+    max-height: 50px;
+    min-height: 50px;
+    border-radius: 25px;
+    color: #909090;
+    background: #FFFFFF;
+}

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/music">
+        <file>chengdu.mp3</file>
+        <file>你的微笑.mp3</file>
+        <file>天空之城钢琴曲.mp3</file>
+    </qresource>
+</RCC>
