@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/qss">
+        <file>css/musicplayer.css</file>
+    </qresource>
+    <qresource prefix="/img">
+        <file>image/chengdu.jpg</file>
+        <file>image/Music.ico</file>
+        <file>image/Music.png</file>
+        <file>image/sky.png</file>
+        <file>image/smile.png</file>
+    </qresource>
+    <qresource prefix="/font">
+        <file>ttf/iconfont.ttf</file>
+    </qresource>
+</RCC>

@@ -16,25 +16,27 @@ DESTDIR = bin
 unix:UI_DIR = ../tmp/ui
 win32:UI_DIR = tmp/ui
 
-SOURCES += main.cpp\
-        musicplayer.cpp \
-    appinit.cpp \
-    playerui.cpp \
-    boderpane.cpp \
-    iconhelper.cpp \
-    slider.cpp
+INCLUDEPATH += include
 
-HEADERS  += musicplayer.h \
-    appinit.h \
-    playerui.h \
-    boderpane.h \
-    iconhelper.h \
-    slider.h
+HEADERS += include/musicplayer.h \
+            include/appinit.h \
+            include/playerui.h \
+            include/boderpane.h \
+            include/iconhelper.h \
+            include/slider.h
 
-FORMS    += musicplayer.ui
+SOURCES += source/main.cpp\
+        source/musicplayer.cpp \
+        source/appinit.cpp \
+        source/playerui.cpp \
+        source/boderpane.cpp \
+        source/iconhelper.cpp \
+        source/slider.cpp
+
+FORMS    += ui/musicplayer.ui
 
 RESOURCES += \
-    res.qrc
+    res/res.qrc
 
 RC_FILE +=  \
-    musicplayer.rc
+    res/musicplayer.rc

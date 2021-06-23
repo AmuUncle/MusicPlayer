@@ -11,10 +11,10 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
 
     a.setFont(QFont("Microsoft Yahei", 9));
-    a.setWindowIcon(QIcon(":/img/Music.png"));
+    a.setWindowIcon(QIcon(":/img/image/Music.ico"));
 
     //加载样式表
-    QFile file(":/qss/musicplayer.css");
+    QFile file(":/qss/css/musicplayer.css");
     if (file.open(QFile::ReadOnly))
     {
         QString qss = QLatin1String(file.readAll());

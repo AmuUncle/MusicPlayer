@@ -7,7 +7,7 @@
 
 PlayerUi::PlayerUi(QWidget *parent) : QWidget(parent)
 {
-    m_pixImage = QPixmap(":/img/chengdu.jpg");
+    m_pixImage = QPixmap(":/img/image/chengdu.jpg");
     m_strSong = tr("成都");
     m_strSinger = tr("赵雷");
 }

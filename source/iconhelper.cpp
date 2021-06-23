@@ -7,7 +7,7 @@ QFont IconHelper::m_iconFont;
 
 bool IconHelper::Load()
 {
-    int nFontId = QFontDatabase::addApplicationFont(":/font/iconfont.ttf");
+    int nFontId = QFontDatabase::addApplicationFont(":/font/ttf/iconfont.ttf");
     QStringList strlistFontName = QFontDatabase::applicationFontFamilies(nFontId);
 
     if (strlistFontName.count() > 0)

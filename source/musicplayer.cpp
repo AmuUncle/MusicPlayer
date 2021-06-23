@@ -91,19 +91,19 @@ void MusicPlayer::InitCtrl()
     QString fileName = QCoreApplication::applicationDirPath();
 
     MusicInfo item;
-    item.pixImage = QPixmap(":/img/chengdu.jpg");
+    item.pixImage = QPixmap(":/img/image/chengdu.jpg");
     item.strSong = tr("成都");
     item.strSinger = tr("赵雷");
     item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/chengdu.mp3").arg(fileName));
     m_listMusics << item;
 
-    item.pixImage = QPixmap(":/img/smile.png");
+    item.pixImage = QPixmap(":/img/image/smile.png");
     item.strSong = tr("你的微笑(Your Smile) ");
     item.strSinger = tr("班得瑞");
     item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/你的微笑.mp3").arg(fileName));
     m_listMusics << item;
 
-    item.pixImage = QPixmap(":/img/sky.png");
+    item.pixImage = QPixmap(":/img/image/sky.png");
     item.strSong = tr("天空之城钢琴曲");
     item.strSinger = tr("理查德");
     item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/天空之城钢琴曲.mp3").arg(fileName));
