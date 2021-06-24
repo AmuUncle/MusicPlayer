@@ -1,5 +1,9 @@
 ﻿#include "playerui.h"
 #include <QPainter>
+#include <QFile>
+#include <QTextStream>
+#include <QCoreApplication>
+#include <QDebug>
 
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
@@ -7,16 +11,16 @@
 
 PlayerUi::PlayerUi(QWidget *parent) : QWidget(parent)
 {
-    m_pixImage = QPixmap(":/img/image/chengdu.jpg");
-    m_strSong = tr("成都");
-    m_strSinger = tr("赵雷");
 }
 
-void PlayerUi::SetParam(QPixmap pixImage, QString strSong, QString strSinger)
+void PlayerUi::SetParam(MusicInfos MusicInf)
 {
-    m_pixImage = pixImage;
-    m_strSong = strSong;
-    m_strSinger = strSinger;
+    m_MusicInfo = MusicInf;
+
+    if (m_MusicInfo.pixImage.isNull())
+        m_MusicInfo.pixImage = QPixmap(":/img/image/sky.png");
+
+    ParseLrcFile();
     update();
 }
 
@@ -38,7 +42,7 @@ void PlayerUi::paintEvent(QPaintEvent *)
     QRect rcImg(rcBgImg);
     rcImg = rcImg.marginsRemoved(QMargins(10, 10, 10, 10));
 
-    QPixmap p = m_pixImage.scaled(rcImg.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    QPixmap p = m_MusicInfo.pixImage.scaled(rcImg.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
     painter.drawPixmap(rcImg, p);
 
     painter.restore();
@@ -51,7 +55,7 @@ void PlayerUi::paintEvent(QPaintEvent *)
     QFont ftTemp = ft;
     ftTemp.setPointSize(12);
     painter.setFont(ftTemp);
-    painter.drawText(rcSong, Qt::AlignHCenter | Qt::AlignBottom, m_strSong);
+    painter.drawText(rcSong, Qt::AlignHCenter | Qt::AlignBottom, m_MusicInfo.strSong);
     painter.setFont(ft);
 
     QRect rcSinger(rcSong);
@@ -61,10 +65,77 @@ void PlayerUi::paintEvent(QPaintEvent *)
     ftTemp = ft;
     ftTemp.setPointSize(9);
     painter.setFont(ftTemp);
-    painter.drawText(rcSinger, Qt::AlignHCenter | Qt::AlignTop, m_strSinger);
+    painter.drawText(rcSinger, Qt::AlignHCenter | Qt::AlignTop, m_MusicInfo.strSinger);
     painter.setFont(ft);
 
+    if (!m_strCurLrc.isEmpty())
+    {
+        QRect rcLrc(rcSinger);
+        painter.setPen(QColor("#909090"));
+        ftTemp = ft;
+        ftTemp.setPointSize(8);
+        painter.setFont(ftTemp);
+        painter.drawText(rcLrc, Qt::AlignHCenter | Qt::AlignBottom, m_strCurLrc);
+        painter.setFont(ft);
+    }
 
     painter.restore();
+}
 
+void PlayerUi::ParseLrcFile()
+{
+    m_mapLrc.clear();
+
+    QString p="\\[([0-9]+:[0-9]+.[0-9]+)\\]";
+    QFile file(m_MusicInfo.strLrcPath);
+    if (file.open(QFile::ReadOnly))
+    {
+        QTextStream text_stream(&file);
+        while(!text_stream.atEnd())
+        {
+            QString content = text_stream.readLine(0);
+
+            QString pattern(p);
+            QRegExp rx(pattern);
+
+            int pos = content.indexOf(rx);
+            if ( pos >= 0 )
+            {
+                if (rx.matchedLength() > 1)
+                {
+                    QString strTime = rx.capturedTexts().at(1);
+
+                    int nMin = strTime.mid(0, 2).toInt();
+                    int nSec = strTime.mid(3, 2).toInt();
+                    int nSSec = strTime.mid(6, 2).toInt();
+
+                    qint64 nPos =  (nMin * 60 + nSec) * 100 + nSSec;
+                    m_mapLrc.insert(nPos, content.mid(10));
+                }
+            }
+        }
+
+        file.close();
+    }
+}
+
+void PlayerUi::OnPlayPosChange(qint64 position)
+{
+    QString strCurLrc = "";
+
+    position /= 10;
+
+    foreach (const qint64 &nPos, m_mapLrc.keys())
+    {
+        if (nPos > position)
+            break;
+
+        strCurLrc = m_mapLrc.value(nPos);
+    }
+
+    if (strCurLrc != m_strCurLrc)
+    {
+        m_strCurLrc = strCurLrc;
+        update();
+    }
 }

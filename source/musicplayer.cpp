@@ -9,12 +9,15 @@
 #include <QAction>
 #include <QCloseEvent>
 #include <QPropertyAnimation>
+#include "libzplay.h"
+#include "musicmgr.h"
 
 
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
 #endif
 
+using namespace libZPlay;
 
 MusicPlayer::MusicPlayer(QWidget *parent) :
     QWidget(parent),
@@ -57,16 +60,13 @@ void MusicPlayer::InitCtrl()
     // 设置边框阴影
     this->setAttribute(Qt::WA_TranslucentBackground, true);
     // 设置具体阴影
-    QGraphicsDropShadowEffect *shadowBorder = new QGraphicsDropShadowEffect(this);
+    QGraphicsDropShadowEffect *shadowBorder = new QGraphicsDropShadowEffect(ui->m_widgetMain);
     shadowBorder->setOffset(0, 0);
     // 阴影颜色
     shadowBorder->setColor(QColor(0x44, 0x44, 0x44, 127));
     // 阴影半径
-    shadowBorder->setBlurRadius(30);
+    shadowBorder->setBlurRadius(20);
     ui->m_widgetMain->setGraphicsEffect(shadowBorder);
-
-    ui->m_widgetCtrls->setAttribute(Qt::WA_TranslucentBackground, true);
-    ui->m_widgetCtrls->setGraphicsEffect(shadowBorder);
 
     ui->m_btnPre->setProperty("m_btnPre", "true");
     ui->m_btnStart->setProperty("m_btnStart", "true");
@@ -81,6 +81,8 @@ void MusicPlayer::InitCtrl()
     IconHelper::SetIcon(ui->m_btnRecovery, QChar(0xe601), 15);
     IconHelper::SetIcon(ui->m_btnMore, QChar(0xe603), 15);
 
+    ui->m_btnCollection->setCheckable(true);
+
     ui->m_Slider->EnableRange(false);
     ui->m_Slider->SetRange(0, 3 * 60 + 54);
     ui->m_Slider->SetStep(1);
@@ -88,28 +90,13 @@ void MusicPlayer::InitCtrl()
     ui->m_Slider->EnablePercent(true);
     ui->m_Slider->EnableTimeMode(true);
 
-    QString fileName = QCoreApplication::applicationDirPath();
+    setWindowOpacity(0.5);
 
-    MusicInfo item;
-    item.pixImage = QPixmap(":/img/image/chengdu.jpg");
-    item.strSong = tr("成都");
-    item.strSinger = tr("赵雷");
-    item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/chengdu.mp3").arg(fileName));
-    m_listMusics << item;
+    DATAMGR->Init();
 
-    item.pixImage = QPixmap(":/img/image/smile.png");
-    item.strSong = tr("你的微笑(Your Smile) ");
-    item.strSinger = tr("班得瑞");
-    item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/你的微笑.mp3").arg(fileName));
-    m_listMusics << item;
-
-    item.pixImage = QPixmap(":/img/image/sky.png");
-    item.strSong = tr("天空之城钢琴曲");
-    item.strSinger = tr("理查德");
-    item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/天空之城钢琴曲.mp3").arg(fileName));
-    m_listMusics << item;
-
-    foreach (MusicInfo item, m_listMusics)
+    QList<MusicInfos> listMusics;
+    DATAMGR->GetMusicList(listMusics);
+    foreach (MusicInfos item, listMusics)
     {
         m_pMedialist->addMedia(item.strSongUrl);
     }
@@ -118,6 +105,8 @@ void MusicPlayer::InitCtrl()
     m_player->setPlaylist(m_pMedialist);
     m_player->setVolume(50);
     m_player->play();
+
+    OnCurrentIndexChanged(0);
 }
 
 void MusicPlayer::InitSolts()
@@ -125,6 +114,7 @@ void MusicPlayer::InitSolts()
     connect(m_pMedialist, SIGNAL(currentIndexChanged(int)), this, SLOT(OnCurrentIndexChanged(int)));
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(OnDurationChanged(qint64)));
     connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(OnPositionChanged(qint64)));
+    connect(m_player, SIGNAL(positionChanged(qint64)), ui->m_widgetMain, SLOT(OnPlayPosChange(qint64)));
     connect(ui->m_Slider, SIGNAL(SignalValueChange(int)), this, SLOT(OnValueChange(int)));
 
     connect(ui->m_btnStart, SIGNAL(clicked()), this, SLOT(OnStartBtnClicked()));
@@ -150,7 +140,9 @@ void MusicPlayer::InitTrayIcon()
 
 void MusicPlayer::OnCurrentIndexChanged(int nIndex)
 {
-    ui->m_widgetMain->SetParam(m_listMusics.at(nIndex).pixImage, m_listMusics.at(nIndex).strSong, m_listMusics.at(nIndex).strSinger);
+    MusicInfos item;
+    DATAMGR->GetMusicInfo(nIndex, item);
+    ui->m_widgetMain->SetParam(item);
 }
 
 void MusicPlayer::OnDurationChanged(qint64 duration)
@@ -240,6 +232,28 @@ void MusicPlayer::PlayCloseAnimation()
 
     connect(closeAnimation,SIGNAL(finished()),this,SLOT(close()));
     closeAnimation->start(QAbstractAnimation::DeleteWhenStopped);
+}
+
+void MusicPlayer::GetMusicInfo(QString strPath, MusicPlayer::MusicInfo &tMusicInfo)
+{
+    ZPlay *player = CreateZPlay();
+
+    // chek if we have class instance
+    if(player == 0)
+    {
+        printf("Error: Can't create class instance !\nPress key to exit.\n");
+        return;
+    }
+
+    TID3InfoEx id3_info;
+    if(player->OpenFile(strPath.toLocal8Bit(), sfAutodetect))
+    {
+        if(player->LoadID3Ex(&id3_info,1))
+        {
+            tMusicInfo.strSong = QString::fromLocal8Bit(id3_info.Title);
+            tMusicInfo.strSinger = QString::fromLocal8Bit(id3_info.Artist);
+        }
+    }
 }
 
 void MusicPlayer::closeEvent(QCloseEvent *event)

@@ -2,6 +2,8 @@
 #define PLAYERUI_H
 
 #include <QWidget>
+#include <QMap>
+#include "musicmgr.h"
 
 class PlayerUi : public QWidget
 {
@@ -10,15 +12,21 @@ public:
     explicit PlayerUi(QWidget *parent = 0);
 
 public:
-    void SetParam(QPixmap pixImage, QString strSong, QString strSinger);
+    void SetParam(MusicInfos MusicInf);
 
 protected:
     void paintEvent(QPaintEvent *);
 
 private:
-    QPixmap m_pixImage;
-    QString m_strSong;
-    QString m_strSinger;
+    void ParseLrcFile();
+
+public slots:
+    void OnPlayPosChange(qint64 position);
+
+private:
+    MusicInfos m_MusicInfo;
+    QString m_strCurLrc;
+    QMap<qint64, QString> m_mapLrc;
 };
 
 #endif // PLAYERUI_H

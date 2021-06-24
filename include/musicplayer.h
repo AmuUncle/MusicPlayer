@@ -41,6 +41,7 @@ private:
     void UpdateCtrlText();
     void InitTrayIcon();
     void PlayCloseAnimation();
+    void GetMusicInfo(QString strPath, MusicInfo &tMusicInfo);
 
     void closeEvent(QCloseEvent *event);
 
@@ -58,7 +59,6 @@ private:
     QMediaPlaylist *m_pMedialist;
     QMediaPlayer *m_player;
 
-    QList<MusicInfo> m_listMusics;
     bool m_bCloseAnimationState;
 };
 

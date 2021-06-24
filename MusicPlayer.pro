@@ -23,7 +23,9 @@ HEADERS += include/musicplayer.h \
             include/playerui.h \
             include/boderpane.h \
             include/iconhelper.h \
-            include/slider.h
+            include/slider.h \
+    include/libzplay.h \
+    include/musicmgr.h
 
 SOURCES += source/main.cpp\
         source/musicplayer.cpp \
@@ -31,7 +33,8 @@ SOURCES += source/main.cpp\
         source/playerui.cpp \
         source/boderpane.cpp \
         source/iconhelper.cpp \
-        source/slider.cpp
+        source/slider.cpp \
+    source/musicmgr.cpp
 
 FORMS    += ui/musicplayer.ui
 
@@ -40,3 +43,8 @@ RESOURCES += \
 
 RC_FILE +=  \
     res/musicplayer.rc
+
+win32: LIBS += -L$$PWD/lib/ -llibzplay
+
+INCLUDEPATH += $$PWD/include
+DEPENDPATH += $$PWD/include
