@@ -79,7 +79,7 @@ void MusicMgr::WriteCfg(QString strCfg)
 
 QString MusicMgr::GetIniFilePath()
 {
-    QString strDocuments = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString strDocuments = QStandardPaths::writableLocation(QStandardPaths::ApplicationsLocation);
 
     QString strPath = QDir::toNativeSeparators(QString("%1/%2/").arg(strDocuments).arg(CFG_INI_FILENAME));
 
@@ -87,6 +87,8 @@ QString MusicMgr::GetIniFilePath()
     dir.mkpath(strPath);
 
     strPath = QDir::toNativeSeparators(QString("%1/%2/%2.ini").arg(strDocuments).arg(CFG_INI_FILENAME));
+
+    qDebug() << strPath;
 
     return strPath;
 }
