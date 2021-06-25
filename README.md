@@ -4,7 +4,7 @@
 本项目为Qt实现一款小而美的音乐播放器。
 
 # 💾体验程序
--  [安装包地址](https://gitee.com/hudejie/MusicPlayer/raw/master/setup/Setup.exe)
+-  [安装包地址](https://gitee.com/hudejie/MusicPlayer/raw/master/setup/MusicPlayer.exe)
 
 # 📦软件架构
 - Qt 5.9 + msvc 2015
