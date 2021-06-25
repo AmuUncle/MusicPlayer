@@ -11,7 +11,15 @@
 #include <QPropertyAnimation>
 #include "libzplay.h"
 #include "musicmgr.h"
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QWindow>
 
+
+#ifdef WIN32
+#include "Windows.h"
+#pragma comment(lib, "User32.lib")
+#endif
 
 #if _MSC_VER >= 1600
 #pragma execution_character_set("utf-8")
@@ -28,6 +36,11 @@ MusicPlayer::MusicPlayer(QWidget *parent) :
     m_pMedialist = NULL;
     m_player = NULL;
     m_bCloseAnimationState = false;
+    m_widgetVolume = NULL;
+    m_sliderVolume = NULL;
+    m_widgetTransparency = NULL;
+    m_sliderTransparency = NULL;
+
 
     ui->m_widgetMain->setAttribute(Qt::WA_StyledBackground);  // 禁止父窗口样式影响子控件样式
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint | Qt::WindowMinMaxButtonsHint);
@@ -53,6 +66,8 @@ void MusicPlayer::CreateAllChildWnd()
 
     NEW_OBJECT(m_pMedialist, QMediaPlaylist);
     NEW_OBJECT(m_player, QMediaPlayer);
+    NEW_OBJECT(m_widgetVolume, QWidget);
+    NEW_OBJECT(m_widgetTransparency, QWidget);
 }
 
 void MusicPlayer::InitCtrl()
@@ -76,10 +91,12 @@ void MusicPlayer::InitCtrl()
     IconHelper::SetIcon(ui->m_btnStart, QChar(0xe612), 24);
     IconHelper::SetIcon(ui->m_btnNext, QChar(0xe677), 15);
 
+    IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe62a), 17);
     IconHelper::SetIcon(ui->m_btnCollection, QChar(0xe600), 15);
     IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe71f), 15);
-    IconHelper::SetIcon(ui->m_btnRecovery, QChar(0xe601), 15);
+    IconHelper::SetIcon(ui->m_btnRecovery, QChar(0xe604), 18);
     IconHelper::SetIcon(ui->m_btnMore, QChar(0xe603), 15);
+    IconHelper::SetIcon(ui->m_btnClose, QChar(0xe608), 5);
 
     ui->m_btnCollection->setCheckable(true);
 
@@ -90,7 +107,35 @@ void MusicPlayer::InitCtrl()
     ui->m_Slider->EnablePercent(true);
     ui->m_Slider->EnableTimeMode(true);
 
-    setWindowOpacity(0.5);
+    m_widgetVolume->setWindowFlags(Qt::Popup);
+    m_widgetVolume->hide();
+
+    m_sliderVolume = new QSlider(m_widgetVolume);
+    connect(m_sliderVolume, SIGNAL(valueChanged(int)), this, SLOT(OnVolumeChanged(int)));
+
+    QVBoxLayout *layoutMain = new QVBoxLayout();
+    layoutMain->addWidget(m_sliderVolume);
+    layoutMain->setMargin(1);
+    m_widgetVolume->setLayout(layoutMain);
+    m_widgetVolume->setProperty("form", "Volume");
+    m_widgetVolume->installEventFilter(this);
+
+    {
+        m_widgetTransparency->setWindowFlags(Qt::Popup);
+        m_widgetTransparency->hide();
+
+        m_sliderTransparency = new QSlider(m_widgetTransparency);
+        m_sliderTransparency->setRange(30, 100);
+        m_sliderTransparency->setValue(100);
+        connect(m_sliderTransparency, SIGNAL(valueChanged(int)), this, SLOT(OnTransparencyChanged(int)));
+
+        QVBoxLayout *layoutMain = new QVBoxLayout();
+        layoutMain->addWidget(m_sliderTransparency);
+        layoutMain->setMargin(1);
+        m_widgetTransparency->setLayout(layoutMain);
+        m_widgetTransparency->setProperty("form", "Volume");
+        m_widgetTransparency->installEventFilter(this);
+    }
 
     DATAMGR->Init();
 
@@ -104,7 +149,8 @@ void MusicPlayer::InitCtrl()
     m_pMedialist->setPlaybackMode(QMediaPlaylist::Loop);
     m_player->setPlaylist(m_pMedialist);
     m_player->setVolume(50);
-    m_player->play();
+    m_sliderVolume->setValue(50);
+    m_sliderVolume->setRange(0, 100);
 
     OnCurrentIndexChanged(0);
 }
@@ -117,10 +163,15 @@ void MusicPlayer::InitSolts()
     connect(m_player, SIGNAL(positionChanged(qint64)), ui->m_widgetMain, SLOT(OnPlayPosChange(qint64)));
     connect(ui->m_Slider, SIGNAL(SignalValueChange(int)), this, SLOT(OnValueChange(int)));
 
+    connect(ui->m_btnClose, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->m_btnStart, SIGNAL(clicked()), this, SLOT(OnStartBtnClicked()));
-    connect(ui->m_btnMore, SIGNAL(clicked()), this, SLOT(OnMoreBtnClicked()));
+    //connect(ui->m_btnMore, SIGNAL(clicked()), this, SLOT(OnMoreBtnClicked()));
     connect(ui->m_btnPre, SIGNAL(clicked()), m_pMedialist, SLOT(previous()));
     connect(ui->m_btnNext, SIGNAL(clicked()), m_pMedialist, SLOT(next()));
+
+    connect(ui->m_btnVolume, SIGNAL(clicked()), this, SLOT(OnVolumeBtnClicked()));
+    connect(ui->m_btnRecovery, SIGNAL(clicked()), this, SLOT(OnTransparencyBtnClicked()));
+    connect(ui->m_btnCollection, SIGNAL(clicked()), this, SLOT(OnCollectionBtnClicked()));
 }
 
 void MusicPlayer::Relayout()
@@ -165,12 +216,12 @@ void MusicPlayer::OnStartBtnClicked()
     if (m_player->state() == QMediaPlayer::PlayingState)
     {
         m_player->pause();
-        IconHelper::SetIcon(ui->m_btnStart, QChar(0xe656), 24);
+        IconHelper::SetIcon(ui->m_btnStart, QChar(0xe612), 24);
     }
     else
     {
         m_player->play();
-        IconHelper::SetIcon(ui->m_btnStart, QChar(0xe612), 24);
+        IconHelper::SetIcon(ui->m_btnStart, QChar(0xe656), 24);
     }
 }
 
@@ -205,6 +256,44 @@ void MusicPlayer::OnMoreBtnClicked()
     delete pMenu;
 }
 
+void MusicPlayer::OnVolumeBtnClicked()
+{
+    m_widgetVolume->show();
+
+    QPoint ptBtn = ui->m_btnVolume->mapToGlobal(ui->m_btnVolume->pos());
+    QPoint point(ptBtn);
+    point.setX(ptBtn.x() - ui->m_btnVolume->pos().x() + ui->m_btnVolume->width() / 2 - m_widgetVolume->width() / 2);
+    point.setY(ptBtn.y() - ui->m_btnVolume->pos().y() - m_widgetVolume->height() - 2);
+    m_widgetVolume->move(point);
+}
+
+void MusicPlayer::OnTransparencyBtnClicked()
+{
+    m_widgetTransparency->show();
+
+    QPoint ptBtn = ui->m_btnRecovery->mapToGlobal(ui->m_btnRecovery->pos());
+    QPoint point(ptBtn);
+    point.setX(ptBtn.x() - ui->m_btnRecovery->pos().x() + ui->m_btnRecovery->width() / 2 - m_widgetTransparency->width() / 2);
+    point.setY(ptBtn.y() - ui->m_btnRecovery->pos().y() - m_widgetTransparency->height() - 2);
+    m_widgetTransparency->move(point);
+}
+
+void MusicPlayer::OnCollectionBtnClicked()
+{
+    if (ui->m_btnCollection->isChecked())
+    {
+        QWindow* pWin = this->windowHandle();
+        pWin->setFlags(this->windowFlags() | Qt::WindowStaysOnTopHint);
+        update();
+    }
+    else
+    {
+        QWindow* pWin = this->windowHandle();
+        pWin->setFlags(this->windowFlags() & ~Qt::WindowStaysOnTopHint);
+        update();
+    }
+}
+
 void MusicPlayer::OnMenuTriggered(QAction *action)
 {
     EMenuItem eItem = (EMenuItem)action->data().toInt();
@@ -216,6 +305,19 @@ void MusicPlayer::OnMenuTriggered(QAction *action)
     default:
         break;
     }
+}
+
+void MusicPlayer::OnVolumeChanged(int nValue)
+{
+    m_player->setVolume(nValue);
+}
+
+void MusicPlayer::OnTransparencyChanged(int nValue)
+{
+    double fRadio = (double)nValue / 100.0;
+    setWindowOpacity(fRadio);
+    m_widgetVolume->setWindowOpacity(fRadio);
+    m_widgetTransparency->setWindowOpacity(fRadio);
 }
 
 void MusicPlayer::PlayCloseAnimation()
@@ -266,4 +368,44 @@ void MusicPlayer::closeEvent(QCloseEvent *event)
     else{
         event->accept();
     }
+}
+
+bool MusicPlayer::eventFilter(QObject *obj, QEvent *evt)
+{
+#ifdef WIN32
+    if (obj == m_widgetVolume)
+    {
+        // class_ameneded 不能是custommenu的成员, 因为winidchange事件触发时, 类成员尚未初始化
+        static bool class_amended = false;
+        if (evt->type() == QEvent::WinIdChange)
+        {
+            HWND hwnd = reinterpret_cast<HWND>(m_widgetVolume->winId());
+            if (class_amended == false)
+            {
+                class_amended = true;
+                DWORD class_style = ::GetClassLong(hwnd, GCL_STYLE);
+                class_style &= ~CS_DROPSHADOW;
+                ::SetClassLong(hwnd, GCL_STYLE, class_style); // windows系统函数
+            }
+        }
+    }
+    else if (obj == m_widgetTransparency)
+    {
+        // class_ameneded 不能是custommenu的成员, 因为winidchange事件触发时, 类成员尚未初始化
+        static bool class_amended = false;
+        if (evt->type() == QEvent::WinIdChange)
+        {
+            HWND hwnd = reinterpret_cast<HWND>(m_widgetTransparency->winId());
+            if (class_amended == false)
+            {
+                class_amended = true;
+                DWORD class_style = ::GetClassLong(hwnd, GCL_STYLE);
+                class_style &= ~CS_DROPSHADOW;
+                ::SetClassLong(hwnd, GCL_STYLE, class_style); // windows系统函数
+            }
+        }
+    }
+#endif
+
+    return QWidget::eventFilter(obj, evt);
 }

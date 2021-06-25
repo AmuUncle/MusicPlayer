@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QUrl>
+#include <QSlider>
 
 namespace Ui {
 class MusicPlayer;
@@ -44,6 +45,7 @@ private:
     void GetMusicInfo(QString strPath, MusicInfo &tMusicInfo);
 
     void closeEvent(QCloseEvent *event);
+    bool eventFilter(QObject *obj, QEvent *evt);
 
 public slots:
     void OnCurrentIndexChanged(int nIndex);
@@ -52,12 +54,23 @@ public slots:
     void OnValueChange(int nValue);
     void OnStartBtnClicked();
     void OnMoreBtnClicked();
+    void OnVolumeBtnClicked();
+    void OnTransparencyBtnClicked();
+    void OnCollectionBtnClicked();
     void OnMenuTriggered(QAction *action);
+    void OnVolumeChanged(int nValue);
+    void OnTransparencyChanged(int nValue);
 
 private:
     Ui::MusicPlayer *ui;
     QMediaPlaylist *m_pMedialist;
     QMediaPlayer *m_player;
+
+    QWidget *m_widgetVolume;
+    QSlider *m_sliderVolume;
+
+    QWidget *m_widgetTransparency;
+    QSlider *m_sliderTransparency;
 
     bool m_bCloseAnimationState;
 };

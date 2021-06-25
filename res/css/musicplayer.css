@@ -55,6 +55,68 @@ QLineEdit
 	background: #D4D6D9;
 }
 
+QSlider::groove:horizontal
+{
+    background:#133050;
+    height:8px;
+    border-radius:4px;
+}
+
+QSlider::add-page:horizontal
+{
+    background:#FFFFFF;
+    height:8px;
+    border:1px solid #CECECE;
+}
+
+QSlider::sub-page:horizontal{
+    background:#328DE0;
+    height:8px;
+    border:1px solid #CECECE;
+}
+
+QSlider::handle:horizontal
+{
+    width:8px;
+    margin-top:-3px;
+    margin-bottom:-3px;
+    border:0px;
+    background:#FFFFFF;
+}
+
+QSlider::groove:vertical
+{
+    width:8px;
+    border-radius:4px;
+    background:#133050;
+}
+
+QSlider::add-page:vertical
+{
+    width:8px;
+    border-radius:0px;
+    background:#91D5FF;
+    border:0px;
+}
+
+QSlider::sub-page:vertical
+{
+    width:8px;
+    border-radius:0px;
+    background:#F5F5F5;
+    border:0px;
+}
+
+QSlider::handle:vertical
+{
+    height:10px;
+    margin-left:-3px;
+    margin-right:-3px;
+    border-radius:5px;
+    border:0px;
+    background:#909090;
+}
+
 QScrollBar:horizontal
 {
 	background:none;
@@ -299,3 +361,31 @@ QPushButton[m_btnStart="true"]
     color: #909090;
     background: #FFFFFF;
 }
+
+QPushButton#m_btnClose
+{
+    min-width: 10px;
+    max-width: 10px;
+    max-height: 10px;
+    min-height: 10px;
+    border-radius: 5px;
+    color: rgba(255, 0, 0, 0);
+    background-color: rgba(255, 0, 0, 0);
+}
+
+QPushButton#m_btnClose:hover,QPushButton#m_btnClose:pressed
+{
+    color: rgba(0, 0, 0);
+    background-color: rgba(255, 0, 0);
+}
+
+
+QWidget[form="Volume"]
+{
+    color:#000000;
+    background:#FFFFFF;
+	border-radius: 10px;
+	padding: 0px;
+	border: 1px solid #DADCDF;
+}
+
