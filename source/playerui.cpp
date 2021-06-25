@@ -86,7 +86,9 @@ void PlayerUi::ParseLrcFile()
 {
     m_mapLrc.clear();
 
-    QString p="\\[([0-9]+:[0-9]+.[0-9]+)\\]";
+    qDebug() << m_MusicInfo.strLrcPath;
+
+    QString p = "\\[([0-9]+:[0-9]+.[0-9]+)\\]";
     QFile file(m_MusicInfo.strLrcPath);
     if (file.open(QFile::ReadOnly))
     {
@@ -98,8 +100,9 @@ void PlayerUi::ParseLrcFile()
             QString pattern(p);
             QRegExp rx(pattern);
 
-            int pos = content.indexOf(rx);
-            if ( pos >= 0 )
+            QString strGeci = content.right(content.size() - (content.lastIndexOf("]")+1));
+
+            while (content.indexOf(rx)>=0)
             {
                 if (rx.matchedLength() > 1)
                 {
@@ -110,8 +113,10 @@ void PlayerUi::ParseLrcFile()
                     int nSSec = strTime.mid(6, 2).toInt();
 
                     qint64 nPos =  (nMin * 60 + nSec) * 100 + nSSec;
-                    m_mapLrc.insert(nPos, content.mid(10));
+                    m_mapLrc.insert(nPos, strGeci);
                 }
+
+                content = content.mid(10);
             }
         }
 

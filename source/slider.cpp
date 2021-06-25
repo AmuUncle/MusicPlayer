@@ -31,6 +31,8 @@ void CSlider::SetRange(int nMin, int nMax)
 
     m_nTotal = m_nMax - m_nMin;
 
+    qDebug() << __FUNCTION__ << m_nMin << m_nMax;
+
     UpdateItemList();
     update();
 }
@@ -39,6 +41,8 @@ void CSlider::SetPos(int nStart, int nEnd)
 {
     m_nStart = nStart;
     m_nEnd = nEnd;
+
+    qDebug() << __FUNCTION__ << m_nStart << m_nEnd;
     update();
 }
 
@@ -55,6 +59,7 @@ void CSlider::SetCurPos(int nPos)
 {
     m_nStart = 0;
     m_nEnd = nPos;
+    qDebug() << __FUNCTION__ << m_nStart << m_nEnd;
     update();
 }
 
@@ -238,7 +243,7 @@ void CSlider::paintEvent(QPaintEvent *)
 
 void CSlider::resizeEvent(QResizeEvent *event)
 {
-    //UpdateItemList();
+    UpdateItemList();
 }
 
 void CSlider::mouseMoveEvent(QMouseEvent *event)

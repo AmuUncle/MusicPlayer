@@ -4,6 +4,7 @@
 #include <QFont>
 #include "appinit.h"
 #include "iconhelper.h"
+#include "musicmgr.h"
 
 
 int main(int argc, char *argv[])
@@ -26,6 +27,7 @@ int main(int argc, char *argv[])
 
     AppInit::Instance()->start();
     IconHelper::Load();
+    DATAMGR->Init();
 
     MusicPlayer w;
     w.show();

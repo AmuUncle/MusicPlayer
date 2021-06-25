@@ -26,6 +26,8 @@ public:
 
 public:
     void Init();
+    void SetRootDir(QString strRootDir);
+    QString GetRootDir() { return m_strRootDir; }
     void GetMusicList(QList<MusicInfos> &listMusic) { listMusic = m_listMusics; }
     void GetMusicInfo(int nIndex, MusicInfos& item);
 
@@ -34,11 +36,20 @@ private:
 
     void ScanMusicFiles();
     void GetMusicInfo(QString strPath, MusicInfos &tMusicInfo);
+    void ReadCfg(QString &strCfg);
+    void WriteCfg(QString strCfg);
+    QString GetIniFilePath();
+
+signals:
+    void SignalMusicListChange();
 
 private:
     static MusicMgr *m_pMusicMgr;
     QList<MusicInfos> m_listMusics;
     libZPlay::ZPlay *m_pZPlayer;
+
+    QString m_strRootDir;
+
 };
 
 #define DATAMGR MusicMgr::GetInstance()

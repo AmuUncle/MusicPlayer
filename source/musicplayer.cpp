@@ -40,7 +40,9 @@ MusicPlayer::MusicPlayer(QWidget *parent) :
     m_sliderVolume = NULL;
     m_widgetTransparency = NULL;
     m_sliderTransparency = NULL;
+    m_pCfgDlg = NULL;
 
+    m_eCurPlaybackMode = PM_LOOP;
 
     ui->m_widgetMain->setAttribute(Qt::WA_StyledBackground);  // 禁止父窗口样式影响子控件样式
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint | Qt::WindowMinMaxButtonsHint);
@@ -52,6 +54,7 @@ MusicPlayer::MusicPlayer(QWidget *parent) :
     InitSolts();
     Relayout();
     InitTrayIcon();
+    UpdatePlayLoopMode();
 }
 
 MusicPlayer::~MusicPlayer()
@@ -68,6 +71,7 @@ void MusicPlayer::CreateAllChildWnd()
     NEW_OBJECT(m_player, QMediaPlayer);
     NEW_OBJECT(m_widgetVolume, QWidget);
     NEW_OBJECT(m_widgetTransparency, QWidget);
+    NEW_OBJECT(m_pCfgDlg, CfgDlg);
 }
 
 void MusicPlayer::InitCtrl()
@@ -101,7 +105,7 @@ void MusicPlayer::InitCtrl()
     ui->m_btnCollection->setCheckable(true);
 
     ui->m_Slider->EnableRange(false);
-    ui->m_Slider->SetRange(0, 3 * 60 + 54);
+    ui->m_Slider->SetRange(0, 100);
     ui->m_Slider->SetStep(1);
     ui->m_Slider->SetCurPos(0);
     ui->m_Slider->EnablePercent(true);
@@ -109,6 +113,7 @@ void MusicPlayer::InitCtrl()
 
     m_widgetVolume->setWindowFlags(Qt::Popup);
     m_widgetVolume->hide();
+    m_widgetVolume->setFixedWidth(8);
 
     m_sliderVolume = new QSlider(m_widgetVolume);
     connect(m_sliderVolume, SIGNAL(valueChanged(int)), this, SLOT(OnVolumeChanged(int)));
@@ -123,6 +128,7 @@ void MusicPlayer::InitCtrl()
     {
         m_widgetTransparency->setWindowFlags(Qt::Popup);
         m_widgetTransparency->hide();
+        m_widgetTransparency->setFixedWidth(8);
 
         m_sliderTransparency = new QSlider(m_widgetTransparency);
         m_sliderTransparency->setRange(30, 100);
@@ -137,22 +143,13 @@ void MusicPlayer::InitCtrl()
         m_widgetTransparency->installEventFilter(this);
     }
 
-    DATAMGR->Init();
-
-    QList<MusicInfos> listMusics;
-    DATAMGR->GetMusicList(listMusics);
-    foreach (MusicInfos item, listMusics)
-    {
-        m_pMedialist->addMedia(item.strSongUrl);
-    }
-
-    m_pMedialist->setPlaybackMode(QMediaPlaylist::Loop);
-    m_player->setPlaylist(m_pMedialist);
     m_player->setVolume(50);
     m_sliderVolume->setValue(50);
     m_sliderVolume->setRange(0, 100);
 
-    OnCurrentIndexChanged(0);
+    OnMusicListChange();
+
+    m_pCfgDlg->hide();
 }
 
 void MusicPlayer::InitSolts()
@@ -165,13 +162,16 @@ void MusicPlayer::InitSolts()
 
     connect(ui->m_btnClose, SIGNAL(clicked()), this, SLOT(close()));
     connect(ui->m_btnStart, SIGNAL(clicked()), this, SLOT(OnStartBtnClicked()));
-    //connect(ui->m_btnMore, SIGNAL(clicked()), this, SLOT(OnMoreBtnClicked()));
+    connect(ui->m_btnMore, SIGNAL(clicked()), this, SLOT(OnMoreBtnClicked()));
     connect(ui->m_btnPre, SIGNAL(clicked()), m_pMedialist, SLOT(previous()));
     connect(ui->m_btnNext, SIGNAL(clicked()), m_pMedialist, SLOT(next()));
 
     connect(ui->m_btnVolume, SIGNAL(clicked()), this, SLOT(OnVolumeBtnClicked()));
     connect(ui->m_btnRecovery, SIGNAL(clicked()), this, SLOT(OnTransparencyBtnClicked()));
     connect(ui->m_btnCollection, SIGNAL(clicked()), this, SLOT(OnCollectionBtnClicked()));
+    connect(ui->m_btnWrapMode, SIGNAL(clicked()), this, SLOT(OnWrapModeBtnClicked()));
+
+    connect(DATAMGR, SIGNAL(SignalMusicListChange()), this, SLOT(OnMusicListChange()));
 }
 
 void MusicPlayer::Relayout()
@@ -198,11 +198,13 @@ void MusicPlayer::OnCurrentIndexChanged(int nIndex)
 
 void MusicPlayer::OnDurationChanged(qint64 duration)
 {
+    qDebug() << __FUNCTION__ << duration;
     ui->m_Slider->SetRange(0, duration / 1000);
 }
 
 void MusicPlayer::OnPositionChanged(qint64 duration)
 {
+    qDebug() << __FUNCTION__ << duration;
     ui->m_Slider->SetCurPos(duration / 1000);
 }
 
@@ -213,6 +215,9 @@ void MusicPlayer::OnValueChange(int nValue)
 
 void MusicPlayer::OnStartBtnClicked()
 {
+    if (m_pMedialist->mediaCount() < 1)
+        return;
+
     if (m_player->state() == QMediaPlayer::PlayingState)
     {
         m_player->pause();
@@ -227,33 +232,23 @@ void MusicPlayer::OnStartBtnClicked()
 
 void MusicPlayer::OnMoreBtnClicked()
 {
-    //创建菜单对象
-    QMenu *pMenu = new QMenu();
+    m_pCfgDlg->show();
 
-    QAction *pQuit = new QAction(tr("退出"), pMenu);
-    pQuit->setData(MENUITEM_QUIT);
-
-    QAction *pTray = new QAction(tr("最小化到托盘"), pMenu);
-    pTray->setData(MENUITEM_TRAY);
-
-    //把QAction对象添加到菜单上
-    pMenu->addAction(pTray);
-    pMenu->addAction(pQuit);
-
-    connect(pMenu, SIGNAL(triggered(QAction*)), this, SLOT(OnMenuTriggered(QAction*)));
-
-    QPoint ptBtn = ui->m_btnMore->mapToGlobal(ui->m_btnMore->pos());
+    QPoint ptBtn = ui->m_btnWrapMode->mapToGlobal(ui->m_btnWrapMode->pos());
     QPoint point(ptBtn);
-    point.setX(ptBtn.x() - ui->m_btnMore->pos().x() + 15);
-    point.setY(ptBtn.y() - ui->m_btnMore->pos().y() - 4 - 30 * 2);
-    pMenu->exec(point);
+    point.setX(ptBtn.x() - ui->m_btnWrapMode->pos().x() + ui->m_btnWrapMode->width() / 2 - m_pCfgDlg->width() / 2 - 4);
+    point.setY(ptBtn.y() - ui->m_btnWrapMode->pos().y() - m_pCfgDlg->height() - 2);
+    //m_pCfgDlg->move(point);
 
-    //释放内存
-    QList<QAction*> list = pMenu->actions();
-    foreach (QAction* pAction, list)
-        delete pAction;
+    QRect rcStart, rcEnd;
+    rcStart = QRect(point.x(), point.y() + m_pCfgDlg->height(), m_pCfgDlg->width(), m_pCfgDlg->height());
+    rcEnd = QRect(point.x(), point.y(), m_pCfgDlg->width(), m_pCfgDlg->height());
 
-    delete pMenu;
+    QPropertyAnimation *animation = new QPropertyAnimation(m_pCfgDlg, "geometry");
+    animation->setDuration(200);
+    animation->setStartValue(rcStart);
+    animation->setEndValue(rcEnd);
+    animation->start();
 }
 
 void MusicPlayer::OnVolumeBtnClicked()
@@ -294,6 +289,14 @@ void MusicPlayer::OnCollectionBtnClicked()
     }
 }
 
+void MusicPlayer::OnWrapModeBtnClicked()
+{
+    int nCurPlaybackMode = (int)m_eCurPlaybackMode;
+    nCurPlaybackMode++;
+    m_eCurPlaybackMode = (EPlaybackMode)(nCurPlaybackMode);
+    UpdatePlayLoopMode();
+}
+
 void MusicPlayer::OnMenuTriggered(QAction *action)
 {
     EMenuItem eItem = (EMenuItem)action->data().toInt();
@@ -310,6 +313,11 @@ void MusicPlayer::OnMenuTriggered(QAction *action)
 void MusicPlayer::OnVolumeChanged(int nValue)
 {
     m_player->setVolume(nValue);
+
+    if (nValue <= 0)
+        IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe630), 17);
+    else
+        IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe62a), 17);
 }
 
 void MusicPlayer::OnTransparencyChanged(int nValue)
@@ -318,6 +326,35 @@ void MusicPlayer::OnTransparencyChanged(int nValue)
     setWindowOpacity(fRadio);
     m_widgetVolume->setWindowOpacity(fRadio);
     m_widgetTransparency->setWindowOpacity(fRadio);
+}
+
+void MusicPlayer::OnMusicListChange()
+{
+    m_player->stop();
+    m_pMedialist->clear();
+
+    QList<MusicInfos> listMusics;
+    DATAMGR->GetMusicList(listMusics);
+    foreach (MusicInfos item, listMusics)
+    {
+        m_pMedialist->addMedia(item.strSongUrl);
+    }
+
+    m_pMedialist->setPlaybackMode(QMediaPlaylist::Loop);
+    m_player->setPlaylist(m_pMedialist);
+
+    if (m_pMedialist->mediaCount() < 1)
+    {
+        MusicInfos item;
+        item.pixImage = QPixmap(QString(":/img/image/smile.png"));
+        item.strSinger = tr("未知");
+        item.strSong = tr("未知");
+        ui->m_widgetMain->SetParam(item);
+    }
+    else
+    {
+        OnCurrentIndexChanged(0);
+    }
 }
 
 void MusicPlayer::PlayCloseAnimation()
@@ -355,6 +392,34 @@ void MusicPlayer::GetMusicInfo(QString strPath, MusicPlayer::MusicInfo &tMusicIn
             tMusicInfo.strSong = QString::fromLocal8Bit(id3_info.Title);
             tMusicInfo.strSinger = QString::fromLocal8Bit(id3_info.Artist);
         }
+    }
+}
+
+void MusicPlayer::UpdatePlayLoopMode()
+{
+    switch (m_eCurPlaybackMode)
+    {
+    case PM_CURRENTITEMINLOOP:
+        m_pMedialist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe623), 15);
+        break;
+    case PM_SEQUENTIAL:
+        m_pMedialist->setPlaybackMode(QMediaPlaylist::Sequential);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe614), 15);
+        break;
+    case PM_LOOP:
+        m_pMedialist->setPlaybackMode(QMediaPlaylist::Loop);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe7b4), 15);
+        break;
+    case PM_RANDOM:
+        m_pMedialist->setPlaybackMode(QMediaPlaylist::Random);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe71f), 15);
+        break;
+    default:
+        m_pMedialist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+        m_eCurPlaybackMode = PM_CURRENTITEMINLOOP;
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe623), 15);
+        break;
     }
 }
 

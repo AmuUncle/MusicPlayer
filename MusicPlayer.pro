@@ -25,7 +25,8 @@ HEADERS += include/musicplayer.h \
             include/iconhelper.h \
             include/slider.h \
     include/libzplay.h \
-    include/musicmgr.h
+    include/musicmgr.h \
+    cfgdlg.h
 
 SOURCES += source/main.cpp\
         source/musicplayer.cpp \
@@ -34,9 +35,11 @@ SOURCES += source/main.cpp\
         source/boderpane.cpp \
         source/iconhelper.cpp \
         source/slider.cpp \
-    source/musicmgr.cpp
+    source/musicmgr.cpp \
+    cfgdlg.cpp
 
-FORMS    += ui/musicplayer.ui
+FORMS    += ui/musicplayer.ui \
+    cfgdlg.ui
 
 RESOURCES += \
     res/res.qrc

@@ -6,6 +6,7 @@ BoderPane::BoderPane(QWidget *parent) : QWidget(parent)
 {
     m_widgetMain = new QWidget(this);
 
+    setWindowFlags(Qt::FramelessWindowHint);
     setAttribute(Qt::WA_StyledBackground);              // 禁止父窗口样式影响子控件样式
     setProperty("form", "userpane");
 

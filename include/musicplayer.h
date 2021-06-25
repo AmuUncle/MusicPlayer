@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QUrl>
 #include <QSlider>
+#include "cfgdlg.h"
+
 
 namespace Ui {
 class MusicPlayer;
@@ -26,6 +28,15 @@ public:
         MENUITEM_TRAY,
     };
 
+    enum EPlaybackMode
+    {
+        PM_CURRENTITEMINLOOP,
+        PM_SEQUENTIAL,
+        PM_LOOP,
+        PM_RANDOM,
+        PM_MAX
+    };
+
     struct MusicInfo
     {
         QPixmap pixImage;
@@ -43,6 +54,7 @@ private:
     void InitTrayIcon();
     void PlayCloseAnimation();
     void GetMusicInfo(QString strPath, MusicInfo &tMusicInfo);
+    void UpdatePlayLoopMode();
 
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *obj, QEvent *evt);
@@ -57,9 +69,11 @@ public slots:
     void OnVolumeBtnClicked();
     void OnTransparencyBtnClicked();
     void OnCollectionBtnClicked();
+    void OnWrapModeBtnClicked();
     void OnMenuTriggered(QAction *action);
     void OnVolumeChanged(int nValue);
     void OnTransparencyChanged(int nValue);
+    void OnMusicListChange();
 
 private:
     Ui::MusicPlayer *ui;
@@ -72,7 +86,11 @@ private:
     QWidget *m_widgetTransparency;
     QSlider *m_sliderTransparency;
 
+    CfgDlg *m_pCfgDlg;
+
     bool m_bCloseAnimationState;
+
+    EPlaybackMode m_eCurPlaybackMode;
 };
 
 #endif // MUSICPLAYER_H

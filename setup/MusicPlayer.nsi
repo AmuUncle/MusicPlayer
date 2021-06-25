@@ -96,12 +96,6 @@ SectionEnd
 Function .onInit
   !insertmacro MUI_LANGDLL_DISPLAY
   next:
-    FindProcDLL::FindProc "${PRODUCT_NAME}.exe"
-        KillProcDLL::KillProc "${PRODUCT_NAME}.exe"
-    Sleep 1000
-    
-    nsExec::Exec 'taskkill /F /IM ${PRODUCT_NAME}.exe'
-    
 	Pop $R0
 	IntCmp $R0 1 isrun1 norun1 norun1
 	isrun1:

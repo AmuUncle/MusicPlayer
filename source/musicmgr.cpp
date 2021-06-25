@@ -2,8 +2,13 @@
 #include <QDir>
 #include <QCoreApplication>
 #include <QDebug>
+#include <QSettings>
+#include <QStandardPaths>
+
 
 using namespace libZPlay;
+
+#define CFG_INI_FILENAME "MusicPlayer"
 
 MusicMgr* MusicMgr::m_pMusicMgr = NULL;
 
@@ -18,11 +23,8 @@ void MusicMgr::ScanMusicFiles()
 
     MusicInfos item;
 
-    QString fileName = QCoreApplication::applicationDirPath();
-
-    QString dirpath = QString("%1/music/").arg(fileName);
     //设置要遍历的目录
-    QDir dir(dirpath);
+    QDir dir(m_strRootDir);
     //设置文件过滤器
     QStringList nameFilters;
     //设置文件过滤格式
@@ -31,12 +33,14 @@ void MusicMgr::ScanMusicFiles()
     QStringList files = dir.entryList(nameFilters, QDir::Files | QDir::Readable, QDir::Name);
     foreach (QString strFile, files)
     {
-        item.pixImage = QPixmap(QString("%1/music/cover/%2.png").arg(fileName).arg(strFile.section(".",0,0)));
-        item.strLrcPath = QString("%1/music/lyric/%2.lrc").arg(fileName).arg(strFile.section(".",0,0));
-        item.strSongUrl = QUrl::fromLocalFile(QString("%1/music/%2").arg(fileName).arg(strFile));
-        GetMusicInfo(QString("%1/music/%2").arg(fileName).arg(strFile), item);
+        item.pixImage = QPixmap(QString("%1/cover/%2.png").arg(m_strRootDir).arg(strFile.section(".",0,0)));
+        item.strLrcPath = QString("%1/lyric/%2.lrc").arg(m_strRootDir).arg(strFile.section(".",0,0));
+        item.strSongUrl = QUrl::fromLocalFile(QString("%1/%2").arg(m_strRootDir).arg(strFile));
+        GetMusicInfo(QString("%1/%2").arg(m_strRootDir).arg(strFile), item);
         m_listMusics << item;
     }
+
+    emit SignalMusicListChange();
 }
 
 void MusicMgr::GetMusicInfo(QString strPath, MusicInfos &tMusicInfo)
@@ -53,6 +57,39 @@ void MusicMgr::GetMusicInfo(QString strPath, MusicInfos &tMusicInfo)
             tMusicInfo.strSinger = QString::fromLocal8Bit(id3_info.Artist);
         }
     }
+}
+
+void MusicMgr::ReadCfg(QString &strCfg)
+{
+    QSettings settingsread(GetIniFilePath(), QSettings::IniFormat);
+    settingsread.setIniCodec("utf-8");
+
+    QString strKey = "Basics/path";
+    strCfg = settingsread.value(strKey, "null").toString();
+}
+
+void MusicMgr::WriteCfg(QString strCfg)
+{
+    qDebug() << strCfg;
+    QSettings settings(GetIniFilePath(), QSettings::IniFormat);
+    settings.setIniCodec("utf-8");
+    settings.beginGroup("Basics");
+    settings.setValue("path", strCfg);
+    settings.endGroup();
+}
+
+QString MusicMgr::GetIniFilePath()
+{
+    QString strDocuments = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+
+    QString strPath = QDir::toNativeSeparators(QString("%1/%2/").arg(strDocuments).arg(CFG_INI_FILENAME));
+
+    QDir dir;
+    dir.mkpath(strPath);
+
+    strPath = QDir::toNativeSeparators(QString("%1/%2/%2.ini").arg(strDocuments).arg(CFG_INI_FILENAME));
+
+    return strPath;
 }
 
 MusicMgr *MusicMgr::GetInstance()
@@ -74,6 +111,23 @@ void MusicMgr::ExitInstance()
 
 void MusicMgr::Init()
 {
+    QString strCfg;
+    ReadCfg(strCfg);
+    if (0 == strCfg.compare("null"))
+    {
+        SetRootDir(strCfg);
+    }
+    else
+    {
+        QString strMusicLocation = QStandardPaths::writableLocation(QStandardPaths::MusicLocation);
+        SetRootDir(strMusicLocation);
+    }
+}
+
+void MusicMgr::SetRootDir(QString strRootDir)
+{
+    m_strRootDir = strRootDir;
+    WriteCfg(m_strRootDir);
     ScanMusicFiles();
 }
 

@@ -49,10 +49,10 @@ QMenu::separator
 
 QLineEdit 
 {
-	border-style:none;
+	border: 1px solid #BEBEC0;
 	border-radius: 1px;
 	padding: 3 3px;
-	background: #D4D6D9;
+	background: #FFFFFF;
 }
 
 QSlider::groove:horizontal
@@ -338,6 +338,40 @@ QWidget[form="title"] QPushButton[toolbar_close="true"]:pressed
 QWidget[form="basedlg"]
 {
     background:#FFFFFF;
+}
+
+QWidget[form="userpane"]
+{
+    background:#FFFFFF;
+	border-radius:6px;
+}
+
+QWidget[form="cfgdlg"]
+{
+    background:#FAFAFA;
+	border-radius:6px;
+	color: #909090;
+}
+
+QWidget[form="cfgdlg"] QPushButton
+{
+	min-width: 60px;
+	min-height: 26px;
+    background:#FFFFFF;
+	border-radius:1px;
+	border: 1px solid #E5E5E5;
+}
+
+QWidget[form="cfgdlg"] QPushButton:hover
+{
+    background:#FAFAFA;
+	border: 1px solid #E0E0E0;
+}
+
+QWidget[form="cfgdlg"] QPushButton:pressed
+{
+    background:#F0F0F0;
+	border: 1px solid #E0E0E0;
 }
 
 QPushButton[m_btnPre="true"],QPushButton[m_btnNext="true"]
