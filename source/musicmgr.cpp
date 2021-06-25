@@ -70,7 +70,6 @@ void MusicMgr::ReadCfg(QString &strCfg)
 
 void MusicMgr::WriteCfg(QString strCfg)
 {
-    qDebug() << strCfg;
     QSettings settings(GetIniFilePath(), QSettings::IniFormat);
     settings.setIniCodec("utf-8");
     settings.beginGroup("Basics");
@@ -113,7 +112,8 @@ void MusicMgr::Init()
 {
     QString strCfg;
     ReadCfg(strCfg);
-    if (0 == strCfg.compare("null"))
+
+    if (0 != strCfg.compare("null"))
     {
         SetRootDir(strCfg);
     }
