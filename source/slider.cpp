@@ -19,6 +19,7 @@ CSlider::CSlider(QWidget *parent) : QWidget(parent)
     m_bOnlyEnd = true;
     m_bPercent = false;
     m_bShowTip = false;
+    m_bTimeMode = false;
 
     SetRange(0, 100);
     setMouseTracking(true);
@@ -68,16 +69,16 @@ void CSlider::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing, true); // 抗锯齿和使用平滑转换算法
 
-    QColor colorBg = QColor("#F5F5F5");
-    QColor colorSel = QColor("#91D5FF");
+    QColor colorBg = QColor("#FFFFFF");
+    QColor colorSel = QColor(93, 49, 255);
     QColor colorEllipse = QColor("#FFFFFF");
     QColor colorToolTip = QColor(0, 0, 0, 180);
 
-    if (m_bSelected)
-        colorBg = QColor("#E1E1E1");
+//    if (m_bSelected)
+//        colorBg = QColor("#E1E1E1");
 
-    if (m_bSelected)
-        colorSel = QColor("#69C0FF");
+//    if (m_bSelected)
+//        colorSel = QColor("#69C0FF");
 
     QFont ft = painter.font();
     QRect rcClient = rect();
@@ -85,7 +86,7 @@ void CSlider::paintEvent(QPaintEvent *)
     QPoint ptCenter = rcClient.center();
     painter.setPen(Qt::NoPen);
     painter.setBrush(colorBg);
-    painter.drawRoundedRect(m_rcBg, 5, 5);
+    painter.drawRoundedRect(m_rcBg, 0, 0);
 
     TItemRect itemStart = GetStartValue();
     TItemRect itemEnd = GetEndValue();
@@ -102,7 +103,7 @@ void CSlider::paintEvent(QPaintEvent *)
         {
             QRect rcAllSel(m_rcBg);
             rcAllSel.setRight(rcSel.right());
-            painter.drawRoundedRect(rcAllSel, 5, 5);
+            painter.drawRoundedRect(rcAllSel, 0, 0);
         }
 
         if (m_bSelStart)
@@ -335,15 +336,15 @@ void CSlider::UpdateItemList()
     m_listItems.clear();
 
     QRect rcClient = rect();
-    const int nHeight = 2;
+    const int nHeight = 4;
 
     QPoint ptCenter = rcClient.center();
     m_rcBg = rcClient;
 
     m_rcBg.setTop(ptCenter.y() - nHeight);
     m_rcBg.setBottom(ptCenter.y() + nHeight);
-    m_rcBg.setLeft(m_rcBg.left() + 20);
-    m_rcBg.setRight(m_rcBg.right() - 20);
+    m_rcBg.setLeft(m_rcBg.left());
+    m_rcBg.setRight(m_rcBg.right());
 
     if (m_bTimeMode)
     {

@@ -8,6 +8,30 @@
         <file>image/Music.png</file>
         <file>image/sky.png</file>
         <file>image/smile.png</file>
+        <file>image/v2.0/amuuncle·amuuncl·eamuuncle·amuuncle·.png</file>
+        <file>image/v2.0/amuuncle·amuuncl·eamuuncle·amuuncle·@2x.png</file>
+        <file>image/v2.0/图层 9.png</file>
+        <file>image/v2.0/图层 9@2x.png</file>
+        <file>image/v2.0/椭圆 1.png</file>
+        <file>image/v2.0/椭圆 1@2x.png</file>
+        <file>image/v2.0/椭圆 5.png</file>
+        <file>image/v2.0/椭圆 5@2x.png</file>
+        <file>image/v2.0/矢量智能对象(1).png</file>
+        <file>image/v2.0/矢量智能对象(2).png</file>
+        <file>image/v2.0/矢量智能对象.png</file>
+        <file>image/v2.0/矢量智能对象1 拷贝.png</file>
+        <file>image/v2.0/矢量智能对象1 拷贝@2x.png</file>
+        <file>image/v2.0/矢量智能对象1.png</file>
+        <file>image/v2.0/矢量智能对象1@2x.png</file>
+        <file>image/v2.0/矢量智能对象2.png</file>
+        <file>image/v2.0/矢量智能对象2@2x.png</file>
+        <file>image/v2.0/矢量智能对象3.png</file>
+        <file>image/v2.0/矢量智能对象3@2x.png</file>
+        <file>image/v2.0/矢量智能对象@2x(1).png</file>
+        <file>image/v2.0/矢量智能对象@2x(2).png</file>
+        <file>image/v2.0/矢量智能对象@2x.png</file>
+        <file>image/v2.0/组 1.png</file>
+        <file>image/v2.0/组 1@2x.png</file>
     </qresource>
     <qresource prefix="/font">
         <file>ttf/iconfont.ttf</file>

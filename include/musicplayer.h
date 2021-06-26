@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QUrl>
 #include <QSlider>
+#include <QMediaPlayer>
 #include "cfgdlg.h"
 
 
@@ -12,7 +13,6 @@ class MusicPlayer;
 }
 
 class QMediaPlaylist;
-class QMediaPlayer;
 
 class MusicPlayer : public QWidget
 {
@@ -58,6 +58,7 @@ private:
 
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *obj, QEvent *evt);
+    void keyPressEvent(QKeyEvent *event);
 
 public slots:
     void OnCurrentIndexChanged(int nIndex);
@@ -74,6 +75,7 @@ public slots:
     void OnVolumeChanged(int nValue);
     void OnTransparencyChanged(int nValue);
     void OnMusicListChange();
+    void OnPlayStateChanged(QMediaPlayer::State newState);
 
 private:
     Ui::MusicPlayer *ui;

@@ -49,6 +49,8 @@ MusicPlayer::MusicPlayer(QWidget *parent) :
     ui->m_widgetMain->setProperty("form", "mainwnd");
     setProperty("canMove", "true");
 
+    this->installEventFilter(this);
+
     CreateAllChildWnd();
     InitCtrl();
     InitSolts();
@@ -91,15 +93,24 @@ void MusicPlayer::InitCtrl()
     ui->m_btnStart->setProperty("m_btnStart", "true");
     ui->m_btnNext->setProperty("m_btnNext", "true");
 
-    IconHelper::SetIcon(ui->m_btnPre, QChar(0xe676), 15);
-    IconHelper::SetIcon(ui->m_btnStart, QChar(0xe612), 24);
-    IconHelper::SetIcon(ui->m_btnNext, QChar(0xe677), 15);
+    ui->m_btnPre->setFixedSize(22, 44);
+    ui->m_btnPre->setIcon(QIcon(":/img/image/v2.0/矢量智能对象1 拷贝.png"));
+    ui->m_btnPre->setIconSize(ui->m_btnPre->size());
 
-    IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe62a), 17);
-    IconHelper::SetIcon(ui->m_btnCollection, QChar(0xe600), 15);
-    IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe71f), 15);
-    IconHelper::SetIcon(ui->m_btnRecovery, QChar(0xe604), 18);
-    IconHelper::SetIcon(ui->m_btnMore, QChar(0xe603), 15);
+    ui->m_btnStart->setFixedSize(23, 44);
+    ui->m_btnStart->setIcon(QIcon(":/img/image/v2.0/矢量智能对象2.png"));
+    ui->m_btnStart->setIconSize(ui->m_btnPre->size());
+
+    ui->m_btnNext->setFixedSize(22, 44);
+    ui->m_btnNext->setIcon(QIcon(":/img/image/v2.0/矢量智能对象1.png"));
+    ui->m_btnNext->setIconSize(ui->m_btnPre->size());
+
+
+    IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe62a), 23);
+    IconHelper::SetIcon(ui->m_btnCollection, QChar(0xe600), 20);
+    IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe71f), 20);
+    IconHelper::SetIcon(ui->m_btnRecovery, QChar(0xe604), 23);
+    IconHelper::SetIcon(ui->m_btnMore, QChar(0xe603), 20);
     IconHelper::SetIcon(ui->m_btnClose, QChar(0xe608), 5);
 
     ui->m_btnCollection->setCheckable(true);
@@ -109,7 +120,7 @@ void MusicPlayer::InitCtrl()
     ui->m_Slider->SetStep(1);
     ui->m_Slider->SetCurPos(0);
     ui->m_Slider->EnablePercent(true);
-    ui->m_Slider->EnableTimeMode(true);
+    //ui->m_Slider->EnableTimeMode(true);
 
     m_widgetVolume->setWindowFlags(Qt::Popup);
     m_widgetVolume->hide();
@@ -158,6 +169,7 @@ void MusicPlayer::InitSolts()
     connect(m_player, SIGNAL(durationChanged(qint64)), this, SLOT(OnDurationChanged(qint64)));
     connect(m_player, SIGNAL(positionChanged(qint64)), this, SLOT(OnPositionChanged(qint64)));
     connect(m_player, SIGNAL(positionChanged(qint64)), ui->m_widgetMain, SLOT(OnPlayPosChange(qint64)));
+    connect(m_player, SIGNAL(stateChanged(QMediaPlayer::State)), this, SLOT(OnPlayStateChanged(QMediaPlayer::State)));
     connect(ui->m_Slider, SIGNAL(SignalValueChange(int)), this, SLOT(OnValueChange(int)));
 
     connect(ui->m_btnClose, SIGNAL(clicked()), this, SLOT(close()));
@@ -221,12 +233,10 @@ void MusicPlayer::OnStartBtnClicked()
     if (m_player->state() == QMediaPlayer::PlayingState)
     {
         m_player->pause();
-        IconHelper::SetIcon(ui->m_btnStart, QChar(0xe612), 24);
     }
     else
     {
         m_player->play();
-        IconHelper::SetIcon(ui->m_btnStart, QChar(0xe656), 24);
     }
 }
 
@@ -315,9 +325,9 @@ void MusicPlayer::OnVolumeChanged(int nValue)
     m_player->setVolume(nValue);
 
     if (nValue <= 0)
-        IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe630), 17);
+        IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe630), 23);
     else
-        IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe62a), 17);
+        IconHelper::SetIcon(ui->m_btnVolume, QChar(0xe62a), 23);
 }
 
 void MusicPlayer::OnTransparencyChanged(int nValue)
@@ -354,6 +364,27 @@ void MusicPlayer::OnMusicListChange()
     else
     {
         OnCurrentIndexChanged(0);
+    }
+}
+
+void MusicPlayer::OnPlayStateChanged(QMediaPlayer::State newState)
+{
+    switch (newState)
+    {
+    case QMediaPlayer::StoppedState:
+    case QMediaPlayer::PausedState:
+        ui->m_widgetMain->OnStop();
+
+        ui->m_btnStart->setIcon(QIcon(":/img/image/v2.0/矢量智能对象2.png"));
+        ui->m_btnStart->setIconSize(ui->m_btnPre->size());
+        break;
+
+    case QMediaPlayer::PlayingState:
+        ui->m_widgetMain->OnStart();
+
+        ui->m_btnStart->setIcon(QIcon(":/img/image/v2.0/矢量智能对象2@2x.png"));
+        ui->m_btnStart->setIconSize(ui->m_btnPre->size());
+        break;
     }
 }
 
@@ -401,24 +432,24 @@ void MusicPlayer::UpdatePlayLoopMode()
     {
     case PM_CURRENTITEMINLOOP:
         m_pMedialist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
-        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe623), 15);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe623), 20);
         break;
     case PM_SEQUENTIAL:
         m_pMedialist->setPlaybackMode(QMediaPlaylist::Sequential);
-        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe614), 15);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe614), 20);
         break;
     case PM_LOOP:
         m_pMedialist->setPlaybackMode(QMediaPlaylist::Loop);
-        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe7b4), 15);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe7b4), 20);
         break;
     case PM_RANDOM:
         m_pMedialist->setPlaybackMode(QMediaPlaylist::Random);
-        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe71f), 15);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe71f), 20);
         break;
     default:
         m_pMedialist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
         m_eCurPlaybackMode = PM_CURRENTITEMINLOOP;
-        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe623), 15);
+        IconHelper::SetIcon(ui->m_btnWrapMode, QChar(0xe623), 20);
         break;
     }
 }
@@ -473,4 +504,13 @@ bool MusicPlayer::eventFilter(QObject *obj, QEvent *evt)
 #endif
 
     return QWidget::eventFilter(obj, evt);
+}
+#include <QKeyEvent>
+void MusicPlayer::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Backspace)
+    {
+        OnStartBtnClicked();
+        event->ignore();
+    }
 }
