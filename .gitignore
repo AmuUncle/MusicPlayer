@@ -6,7 +6,7 @@
 *.la
 *.lai
 *.so
-*.dll
+#*.dll
 *.dylib
 
 # Qt-es
@@ -49,9 +49,13 @@ ui_*.h
 Makefile*
 *.pro.user
 *.obj
-*.lib
+#*.lib
 *.Debug
 *.Release
 *.~vsdx
 *.txt
 *.pdb
+
+
+
+!lib
