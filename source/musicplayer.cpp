@@ -14,6 +14,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QWindow>
+#include <QKeyEvent>
+
 
 
 #ifdef WIN32
@@ -161,6 +163,8 @@ void MusicPlayer::InitCtrl()
     OnMusicListChange();
 
     m_pCfgDlg->hide();
+
+    this->grabKeyboard();
 }
 
 void MusicPlayer::InitSolts()
@@ -503,14 +507,24 @@ bool MusicPlayer::eventFilter(QObject *obj, QEvent *evt)
     }
 #endif
 
-    return QWidget::eventFilter(obj, evt);
-}
-#include <QKeyEvent>
-void MusicPlayer::keyPressEvent(QKeyEvent *event)
-{
-    if (event->key() == Qt::Key_Backspace)
+    if (evt->type() == QEvent::KeyRelease)
     {
-        OnStartBtnClicked();
-        event->ignore();
+        QKeyEvent *e = (QKeyEvent *)evt;
+        if (e->key() == Qt::Key_Space)
+        {
+            OnStartBtnClicked();
+        }
+        else if (e->key() == Qt::Key_Left)
+        {
+            m_pMedialist->previous();
+        }
+        else if (e->key() == Qt::Key_Right)
+        {
+            m_pMedialist->next();
+        }
+
+        return true;
     }
+
+    return QWidget::eventFilter(obj, evt);
 }

@@ -58,7 +58,6 @@ private:
 
     void closeEvent(QCloseEvent *event);
     bool eventFilter(QObject *obj, QEvent *evt);
-    void keyPressEvent(QKeyEvent *event);
 
 public slots:
     void OnCurrentIndexChanged(int nIndex);
