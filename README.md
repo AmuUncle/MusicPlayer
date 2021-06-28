@@ -26,7 +26,7 @@
 # 🗺️软件截图
 
 ### 主界面
-![导航](https://gitee.com/hudejie/MusicPlayer/raw/master/screenshot/main.gif)
+![导航](https://gitee.com/hudejie/MusicPlayer/raw/v2.0/screenshot/main.gif)
 
 
 # 📝参考网址
