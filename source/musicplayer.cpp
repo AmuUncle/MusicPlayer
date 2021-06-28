@@ -14,6 +14,8 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include <QWindow>
+#include <QKeyEvent>
+
 
 
 #ifdef WIN32
@@ -48,6 +50,8 @@ MusicPlayer::MusicPlayer(QWidget *parent) :
     setWindowFlags(windowFlags() | Qt::FramelessWindowHint | Qt::WindowMinMaxButtonsHint);
     ui->m_widgetMain->setProperty("form", "mainwnd");
     setProperty("canMove", "true");
+
+    this->installEventFilter(this);
 
     CreateAllChildWnd();
     InitCtrl();
@@ -150,6 +154,8 @@ void MusicPlayer::InitCtrl()
     OnMusicListChange();
 
     m_pCfgDlg->hide();
+
+    this->grabKeyboard();
 }
 
 void MusicPlayer::InitSolts()
@@ -471,6 +477,25 @@ bool MusicPlayer::eventFilter(QObject *obj, QEvent *evt)
         }
     }
 #endif
+
+    if (evt->type() == QEvent::KeyRelease)
+    {
+        QKeyEvent *e = (QKeyEvent *)evt;
+        if (e->key() == Qt::Key_Space)
+        {
+            OnStartBtnClicked();
+        }
+        else if (e->key() == Qt::Key_Left)
+        {
+            m_pMedialist->previous();
+        }
+        else if (e->key() == Qt::Key_Right)
+        {
+            m_pMedialist->next();
+        }
+
+        return true;
+    }
 
     return QWidget::eventFilter(obj, evt);
 }
