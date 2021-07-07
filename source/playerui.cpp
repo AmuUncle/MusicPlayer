@@ -20,14 +20,14 @@ PlayerUi::PlayerUi(QWidget *parent) : QWidget(parent)
 
     m_pTimerZhuan = new QTimer(this);
     connect(m_pTimerZhuan, SIGNAL(timeout()), this, SLOT(OnTimerZhuanTimeOut()));
-    m_pTimerZhuan->setInterval(200);
+    m_pTimerZhuan->setInterval(100);
 
     OnStop();
 }
 
-void PlayerUi::SetParam(MusicInfos MusicInf)
+void PlayerUi::SetParam(MusicInfos MusicInfo)
 {
-    m_MusicInfo = MusicInf;
+    m_MusicInfo = MusicInfo;
 
     if (m_MusicInfo.pixImage.isNull())
         m_MusicInfo.pixImage = QPixmap(":/img/image/sky.png");
@@ -48,12 +48,10 @@ void PlayerUi::DrawBg(QPainter *painter)
     painter->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::TextAntialiasing, true); // 抗锯齿和使用平滑转换算法
 
     QRect rcClient = rect();
-
     QFont ft = painter->font();
 
     painter->translate(rcClient.left(), rcClient.top());  // 移动绘制原点
-
-    painter->scale(rcClient.width() / 800.0, rcClient.height() / 598.0);       // 700*300 相当于下面的绘制都基于700*300
+    painter->scale(rcClient.width() / 800.0, rcClient.height() / 598.0);
 
     QRect recthaibao(281, 157, 233.0, 233.0);
     QPixmap pHaibao = m_MusicInfo.pixImage.scaled(recthaibao.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
@@ -69,10 +67,19 @@ void PlayerUi::DrawBg(QPainter *painter)
     painter->save();
     painter->translate(rectzhuan.center());
     painter->rotate(m_nRotate);
-    QRect rectzhuan1(-233.0 / 2, -233.0/2, 233.0, 233.0);
+    QRect rectzhuan1(-233.0 / 2, -233.0 / 2, 233.0, 233.0);
     painter->drawPixmap(rectzhuan1, pZhuan);
     painter->restore();
 
+    QRect rectCd(550, 20, 160.0, 160.0);
+    QPixmap pCd = QPixmap(":/img/image/v2.0/cd.png").scaled(rectCd.size(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    painter->save();
+    painter->translate(rectCd.center());
+    painter->rotate(m_nRotate);
+    QRect rectCd1(-160.0 / 2, -160.0 / 2, 160.0, 160.0);
+    painter->drawPixmap(rectCd1, pCd);
+    painter->restore();
 
     painter->save();
     painter->translate(302, 90);
@@ -110,14 +117,11 @@ void PlayerUi::DrawBg(QPainter *painter)
         painter->drawText(rcLrc, Qt::AlignLeft, m_strCurLrc);
         painter->restore();
     }
-
 }
 
 void PlayerUi::ParseLrcFile()
 {
     m_mapLrc.clear();
-
-    qDebug() << m_MusicInfo.strLrcPath;
 
     QString p = "\\[([0-9]+:[0-9]+.[0-9]+)\\]";
     QFile file(m_MusicInfo.strLrcPath);

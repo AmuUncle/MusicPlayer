@@ -32,6 +32,7 @@
         <file>image/v2.0/矢量智能对象@2x.png</file>
         <file>image/v2.0/组 1.png</file>
         <file>image/v2.0/组 1@2x.png</file>
+        <file>image/v2.0/cd.png</file>
     </qresource>
     <qresource prefix="/font">
         <file>ttf/iconfont.ttf</file>
